@@ -1,0 +1,32 @@
+name: privacypass_ffi
+description: 'Privacy Pass protocol implementation via Rust FFI'
+version: 0.1.0
+homepage: https://kagi.com
+
+environment:
+  sdk: ^3.9.2
+  flutter: ^3.35.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  ffi: ^2.1.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.kagi.privacypass_ffi
+        pluginClass: PrivacypassFfiPlugin
+        ffiPlugin: true
+      ios:
+        pluginClass: PrivacypassFfiPlugin
+        ffiPlugin: true
+      macos:
+        pluginClass: PrivacypassFfiPlugin
+        ffiPlugin: true
