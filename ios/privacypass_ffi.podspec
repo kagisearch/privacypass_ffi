@@ -22,12 +22,13 @@ Provides native performance for cryptographic operations.
   # Static library containing Rust code
   s.vendored_libraries = 'Frameworks/*.a'
 
-  # Pod configuration
+  # Pod configuration with conditional linking
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
     'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386',
-    # Force load the static library
-    'OTHER_LDFLAGS' => '-force_load "$(PODS_TARGET_SRCROOT)/Frameworks/libkagipp_ffi.a"',
+    # Conditional force load based on SDK
+    'OTHER_LDFLAGS[sdk=iphoneos*]' => '-force_load "$(PODS_TARGET_SRCROOT)/Frameworks/libkagipp_ffi.a"',
+    'OTHER_LDFLAGS[sdk=iphonesimulator*]' => '-force_load "$(PODS_TARGET_SRCROOT)/Frameworks/libkagipp_ffi_sim.a"',
     # Library search paths
     'LIBRARY_SEARCH_PATHS' => '"$(PODS_TARGET_SRCROOT)/Frameworks"'
   }
