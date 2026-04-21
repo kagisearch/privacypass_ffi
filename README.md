@@ -8,7 +8,7 @@ operations.
 - ✅ **Native Performance**: Rust-powered cryptography via FFI
 - ✅ **Background Processing**: Operations run in isolates (via Isolate.spawn) to prevent UI blocking
 - ✅ **Memory Safe**: Automatic memory management with proper FFI bindings
-- ✅ **Cross-Platform**: Supports Android (arm64-v8a, armeabi-v7a, x86_64, x86) and iOS (arm64 + simulators)
+- ✅ **Cross-Platform**: Supports Android (arm64-v8a, armeabi-v7a, x86_64), iOS (arm64 + simulators), and macOS
 - ✅ **Easy to Use**: Simple Dart API with comprehensive documentation
 
 ## What is Privacy Pass?
@@ -26,8 +26,8 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  privacy_pass_ffi:
-    path: ../privacy_pass_ffi  # Update with your path
+  privacypass_ffi:
+    path: ../privacypass_ffi  # Update with your path
 ```
 
 Then run:
@@ -50,17 +50,14 @@ flutter pub get
 
 **Build for all platforms:**
 
+Build the Rust FFI library from the `rust/` directory, then copy the compiled libraries to the plugin:
+
 ```bash
-cd path/to/privacypass-lib
-bash build_plugin.sh
+# Copy libraries after building
+bash scripts/copy_android_libs.sh
+bash scripts/copy_ios_libs.sh
+bash scripts/copy_macos_libs.sh
 ```
-
-This script will:
-
-1. Build Rust libraries for Android (all architectures)
-2. Build Rust libraries for iOS (device + simulator)
-3. Generate C headers
-4. Copy libraries to the Flutter plugin
 
 ## Usage
 
@@ -69,48 +66,43 @@ This script will:
 Use `PrivacyPassIsolate` to run crypto operations in background isolates:
 
 ```dart
-import 'package:privacy_pass_ffi/privacy_pass_ffi.dart';
+import 'package:privacypass_ffi/privacypass_ffi.dart';
 
-// Initialize
 final client = PrivacyPassIsolate();
-await
-client.init
-(
-concurrency: 2);
 
 try {
-// Step 1: Get challenge from origin server
-final response = await http.get(Uri.parse('https://origin.com/protected'));
-final wwwAuthHeader = response.headers['www-authenticate']!;
+  // Step 1: Get challenge from origin server
+  final response = await http.get(Uri.parse('https://origin.com/protected'));
+  final wwwAuthHeader = response.headers['www-authenticate']!;
 
-// Step 2: Generate token request
-final request = await client.generateTokenRequest(
-wwwAuthenticateHeader: wwwAuthHeader,
-tokenCount: 5,
-);
+  // Step 2: Generate token request
+  final request = await client.generateTokenRequest(
+    wwwAuthenticateHeader: wwwAuthHeader,
+    tokenCount: 5,
+  );
 
-// Step 3: Send to issuer
-final issuerResponse = await http.post(
-Uri.parse('https://issuer.com/token'),
-body: request.tokenRequest,
-);
+  // Step 3: Send to issuer
+  final issuerResponse = await http.post(
+    Uri.parse('https://issuer.com/token'),
+    body: request.tokenRequest,
+  );
 
-// Step 4: Finalize tokens
-final tokens = await client.finalizeTokens(
-wwwAuthenticateHeader: wwwAuthHeader,
-clientState: request.clientState,
-tokenResponse: issuerResponse.body,
-);
+  // Step 4: Finalize tokens
+  final tokens = await client.finalizeTokens(
+    wwwAuthenticateHeader: wwwAuthHeader,
+    clientState: request.clientState,
+    tokenResponse: issuerResponse.body,
+  );
 
-// Step 5: Use tokens
-final protectedResponse = await http.get(
-Uri.parse('https://origin.com/protected'),
-headers: {'Authorization': 'PrivateToken token=${tokens.first}'},
-);
+  // Step 5: Use tokens
+  final protectedResponse = await http.get(
+    Uri.parse('https://origin.com/protected'),
+    headers: {'Authorization': 'PrivateToken token=${tokens.first}'},
+  );
 
-print('Success: ${protectedResponse.body}');
-} finally {
-await client.dispose();
+  print('Success: ${protectedResponse.body}');
+} catch (e) {
+  print('Error: $e');
 }
 ```
 
@@ -119,7 +111,7 @@ await client.dispose();
 Use `PrivacyPassClient` for synchronous operations:
 
 ```dart
-import 'package:privacy_pass_ffi/privacy_pass_ffi.dart';
+import 'package:privacypass_ffi/privacypass_ffi.dart';
 
 final client = PrivacyPassClient();
 
@@ -145,26 +137,15 @@ Background processing client using Dart's built-in `Isolate.spawn`.
 
 #### Methods
 
-**`Future<void> init({int concurrency = 2})`**
-
-- Initialize the client (spawns isolates on-demand)
-- `concurrency`: Parameter kept for API compatibility but not used (isolates are created per-request)
-
 **`Future<TokenRequestResult> generateTokenRequest({required String wwwAuthenticateHeader, required int tokenCount})`**
 
-- Generate a Privacy Pass token request
+- Generate a Privacy Pass token request in a background isolate
 - Returns: `TokenRequestResult` with `clientState` and `tokenRequest`
 
-**
-`Future<List<String>> finalizeTokens({required String wwwAuthenticateHeader, required String clientState, required String tokenResponse})`
-**
+**`Future<List<String>> finalizeTokens({required String wwwAuthenticateHeader, required String clientState, required String tokenResponse})`**
 
-- Finalize tokens from issuer response
+- Finalize tokens from issuer response in a background isolate
 - Returns: List of base64-encoded tokens
-
-**`Future<void> dispose()`**
-
-- Clean up resources (isolates are automatically terminated after each operation)
 
 ### `PrivacyPassClient`
 
@@ -176,9 +157,7 @@ Synchronous client (operations block current isolate).
 
 - Synchronous token request generation
 
-**
-`List<String> finalizeTokens({required String wwwAuthenticateHeader, required String clientState, required String tokenResponse})`
-**
+**`List<String> finalizeTokens({required String wwwAuthenticateHeader, required String clientState, required String tokenResponse})`**
 
 - Synchronous token finalization
 
@@ -202,40 +181,34 @@ class TokenRequestResult {
 ### Project Structure
 
 ```
-privacy_pass_ffi/
+privacypass_ffi/
 ├── lib/
 │   ├── src/
-│   │   ├── bindings.dart         # FFI bindings
+│   │   ├── bindings.dart              # FFI bindings
 │   │   ├── privacy_pass_client.dart   # Synchronous API
 │   │   ├── privacy_pass_isolate.dart  # Async isolate API
-│   │   └── types.dart            # Dart types
-│   └── privacy_pass_ffi.dart     # Main export
+│   │   └── types.dart                 # Dart types
+│   └── privacypass_ffi.dart           # Main export
 ├── android/
-│   └── src/main/jniLibs/         # Native .so files
+│   └── src/main/jniLibs/              # Native .so files
 ├── ios/
-│   └── Frameworks/               # Native .a files
+│   └── Frameworks/                    # Native .a files
+├── macos/
+│   └── Frameworks/                    # Native .dylib files
+├── rust/                              # Rust FFI source & build
 ├── scripts/
 │   ├── copy_android_libs.sh
 │   ├── copy_ios_libs.sh
-│   ├── run_example_android.sh
-│   └── run_example_ios.sh
-└── example/                       # Demo app
+│   └── copy_macos_libs.sh
+├── test/                              # Unit tests
+└── example/                           # Demo app
 ```
 
 ### Running the Example
 
-**Android:**
-
 ```bash
-cd privacy_pass_ffi
-bash scripts/run_example_android.sh
-```
-
-**iOS:**
-
-```bash
-cd privacy_pass_ffi
-bash scripts/run_example_ios.sh
+cd privacypass_ffi/example
+flutter run
 ```
 
 ### Testing
@@ -243,7 +216,7 @@ bash scripts/run_example_ios.sh
 Run unit tests:
 
 ```bash
-cd privacy_pass_ffi
+cd privacypass_ffi
 flutter test
 ```
 
@@ -251,7 +224,7 @@ flutter test
 
 **Enable Rust debug symbols:**
 
-In `privacypass-lib/src/Cargo.toml`:
+In the Rust FFI crate's `Cargo.toml`:
 
 ```toml
 [profile.release]
@@ -286,8 +259,9 @@ print('Failed to load library: $e');
             ↓
 ┌─────────────────────────────────┐
 │   Rust FFI Wrapper              │
-│   - privacy_pass_token_request  │
+│   - privacy_pass_token_request      │
 │   - privacy_pass_token_finalization │
+│   - privacy_pass_free_string        │
 └───────────┬─────────────────────┘
             │
             ↓
@@ -320,10 +294,10 @@ Using `PrivacyPassIsolate` prevents UI jank during these operations.
 
 **Issue**: `java.lang.UnsatisfiedLinkError: dlopen failed: library "libkagipp_ffi.so" not found`
 
-**Solution**: Rebuild native libraries and ensure they're copied to `jniLibs`:
+**Solution**: Rebuild native libraries and copy them to `jniLibs`:
 
 ```bash
-cd privacypass-lib && bash build_plugin.sh
+bash scripts/copy_android_libs.sh
 ```
 
 ### iOS
@@ -333,10 +307,11 @@ cd privacypass-lib && bash build_plugin.sh
 **Solution**: Clean and rebuild:
 
 ```bash
-cd privacy_pass_ffi/example/ios
+cd privacypass_ffi/example/ios
 rm -rf Pods Podfile.lock
 flutter clean
-cd ../.. && bash scripts/run_example_ios.sh
+flutter pub get
+cd ios && pod install
 ```
 
 ### Build Failures
@@ -348,12 +323,12 @@ cd ../.. && bash scripts/run_example_ios.sh
 ```bash
 rustup target add aarch64-linux-android armv7-linux-androideabi \
                   x86_64-linux-android aarch64-apple-ios \
-                  x86_64-apple-ios aarch64-apple-ios-sim
+                  aarch64-apple-ios-sim x86_64-apple-ios
 ```
 
 ## License
 
-See [LICENSE](../LICENSE) file.
+See [LICENSE](LICENSE) file.
 
 ## Contributing
 
