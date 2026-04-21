@@ -92,13 +92,6 @@ class PrivacyPassIsolate {
     }
   }
 
-  /// Get the library version
-  ///
-  /// This is a lightweight operation that doesn't need to run in an isolate
-  String getVersion() {
-    return PrivacyPassClient().getVersion();
-  }
-
   /// Run a request in a new isolate
   Future<dynamic> _runInIsolate(_IsolateRequest request) async {
     final receivePort = ReceivePort();

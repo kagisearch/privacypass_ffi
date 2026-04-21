@@ -27,13 +27,11 @@ class _MyAppState extends State<MyApp> {
 
   void _initialize() {
     try {
-      final version = _client.getVersion();
-
       setState(() {
         _initialized = true;
         _status = 'Ready';
       });
-      _addLog('✅ Initialized Privacy Pass FFI v$version');
+      _addLog('✅ Initialized Privacy Pass FFI');
     } catch (e) {
       setState(() {
         _status = 'Error: $e';

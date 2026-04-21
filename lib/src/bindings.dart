@@ -96,15 +96,4 @@ class PrivacyPassBindings {
       _freeString(ptr);
     }
   }
-
-  /// Function: privacy_pass_version
-  ///
-  /// Returns the library version string (does not need to be freed)
-  late final _version = _lib.lookupFunction<ffi.Pointer<ffi.Char> Function(), ffi.Pointer<ffi.Char> Function()>(
-    'privacy_pass_version',
-  );
-
-  ffi.Pointer<ffi.Char> privacyPassVersion() {
-    return _version();
-  }
 }

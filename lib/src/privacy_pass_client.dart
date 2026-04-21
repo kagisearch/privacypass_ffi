@@ -35,17 +35,6 @@ import 'types.dart';
 class PrivacyPassClient {
   final PrivacyPassBindings _bindings = PrivacyPassBindings();
 
-  /// Get the library version
-  String getVersion() {
-    final versionPtr = _bindings.privacyPassVersion();
-    if (versionPtr.address == 0) {
-      return 'unknown';
-    }
-    final version = versionPtr.cast<Utf8>().toDartString();
-    _bindings.privacyPassFreeString(versionPtr);
-    return version;
-  }
-
   /// Generate a Privacy Pass token request
   ///
   /// Parameters:

@@ -182,10 +182,6 @@ Synchronous client (operations block current isolate).
 
 - Synchronous token finalization
 
-**`String getVersion()`**
-
-- Get library version string
-
 ### Types
 
 **`TokenRequestResult`**
@@ -267,7 +263,7 @@ debug = true
 ```dart
 try {
 final client = PrivacyPassClient();
-print('Library loaded: ${client.getVersion()}');
+print('Library loaded successfully');
 } catch (e) {
 print('Failed to load library: $e');
 }
