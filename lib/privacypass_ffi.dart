@@ -9,14 +9,14 @@
 /// - Finalize tokens from issuer responses
 /// - Background processing via Isolate.spawn (no external dependencies)
 /// - Memory-safe FFI bindings
-/// - Support for Android and iOS
+/// - Support for Android, iOS, and macOS
 ///
 /// ## Usage
 ///
 /// ### Basic Usage (Synchronous)
 ///
 /// ```dart
-/// import 'package:privacy_pass_ffi/privacy_pass_ffi.dart';
+/// import 'package:privacypass_ffi/privacypass_ffi.dart';
 ///
 /// final client = PrivacyPassClient();
 ///
@@ -39,10 +39,9 @@
 /// ### Background Processing (Recommended)
 ///
 /// ```dart
-/// import 'package:privacy_pass_ffi/privacy_pass_ffi.dart';
+/// import 'package:privacypass_ffi/privacypass_ffi.dart';
 ///
 /// final client = PrivacyPassIsolate();
-/// await client.init();
 ///
 /// // Operations run in background isolates
 /// final request = await client.generateTokenRequest(
@@ -55,8 +54,6 @@
 ///   clientState: request.clientState,
 ///   tokenResponse: response,
 /// );
-///
-/// await client.dispose();
 /// ```
 library;
 

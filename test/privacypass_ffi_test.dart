@@ -7,13 +7,6 @@ void main() {
       expect(() => PrivacyPassClient(), returnsNormally);
     });
 
-    test('getVersion returns a version string', () {
-      final client = PrivacyPassClient();
-      final version = client.getVersion();
-      expect(version, isNotEmpty);
-      expect(version, isA<String>());
-    });
-
     test('generateTokenRequest throws on invalid input', () {
       final client = PrivacyPassClient();
 
@@ -38,12 +31,6 @@ void main() {
   group('PrivacyPassIsolate', () {
     test('can be instantiated', () {
       expect(() => PrivacyPassIsolate(), returnsNormally);
-    });
-
-    test('getVersion works without init', () {
-      final client = PrivacyPassIsolate();
-      final version = client.getVersion();
-      expect(version, isNotEmpty);
     });
 
     test('generateTokenRequest works in isolate', () async {
