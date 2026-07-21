@@ -9,8 +9,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
 RUST_DIR="$PLUGIN_DIR/../privacypass-lib/src/target"
 
-# Source paths
-DYLIB_SRC="$RUST_DIR/release/libkagipp_ffi.dylib"
+# Source paths (universal arm64 + x86_64 dylib produced by build_macos.sh)
+DYLIB_SRC="$RUST_DIR/universal-macos/libkagipp_ffi.dylib"
 
 # Destination
 DYLIB_DEST="$PLUGIN_DIR/macos/Frameworks/libkagipp_ffi.dylib"
