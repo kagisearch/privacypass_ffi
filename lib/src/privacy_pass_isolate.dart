@@ -73,9 +73,11 @@ class PrivacyPassIsolate {
     );
   }
 
-  /// Run [computation] in a background isolate, rethrowing failures as
-  /// [PrivacyPassException] (exceptions do not cross isolate boundaries
-  /// as their original type).
+  /// Run [computation] in a background isolate.
+  ///
+  /// [PrivacyPassException] is sendable, so it crosses the isolate boundary
+  /// with its original type and is rethrown as-is. Any other error is
+  /// wrapped in a [PrivacyPassException] so callers see a single failure type.
   Future<T> _run<T>(T Function() computation) async {
     try {
       return await Isolate.run(computation);

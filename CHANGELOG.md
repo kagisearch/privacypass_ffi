@@ -12,7 +12,7 @@
   * `PrivacyPassIsolate` now uses `Isolate.run`.
   * The package is a pure Dart FFI package (usable from Flutter and standalone Dart).
   * Added `PrivacyPassClient.nativeLibraryVersion`.
-* Requires Flutter 3.38+ / Dart 3.10+.
+* Requires Flutter 3.44+ / Dart 3.12+.
 
 ## 0.1.0
 

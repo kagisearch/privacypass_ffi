@@ -36,8 +36,8 @@ Then run:
 flutter pub get
 ```
 
-Requires Flutter 3.38+ / Dart 3.10+ (build hooks). Prebuilt native libraries are committed under `prebuilt/`, so
-consumers do **not** need a Rust toolchain.
+Requires Flutter 3.44+ / Dart 3.12+ (matching the pubspec `sdk: ^3.12.0` constraint). Prebuilt native libraries are
+committed under `prebuilt/`, so consumers do **not** need a Rust toolchain.
 
 ## Usage
 

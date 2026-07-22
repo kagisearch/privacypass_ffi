@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A Dart FFI package (`privacypass_ffi`) exposing Kagi's Privacy Pass protocol implementation (VOPRF/Ristretto255, RFC 9578) written in Rust. The Rust source lives in the `rust/` git submodule ([kagisearch/privacypass-lib](https://github.com/kagisearch/privacypass-lib)); this repo wraps its compiled output for Android, iOS, and macOS. It follows the Flutter `package_ffi` template architecture (build hooks + code assets, standard since Flutter 3.38): there are **no platform folders, podspecs, or gradle files** — `hook/build.dart` registers a prebuilt library as a code asset per build target, and Dart resolves the `@Native` bindings by asset id at runtime.
 
-Prebuilt binaries are committed under `prebuilt/` (Android `.so` per ABI, iOS `.dylib` per SDK/arch, macOS universal `.dylib`), so Dart-only changes do not require a Rust toolchain.
+Prebuilt binaries are committed under `prebuilt/` (Android `.so` per ABI, iOS `.dylib` per SDK/arch, macOS thin `.dylib` per arch), so Dart-only changes do not require a Rust toolchain.
 
 ## Commands
 
