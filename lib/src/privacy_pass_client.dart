@@ -5,13 +5,14 @@ import 'dart:convert';
 
 import 'package:ffi/ffi.dart';
 
-import 'bindings.dart';
+import 'privacypass_ffi_bindings_generated.dart' as bindings;
 import 'types.dart';
 
 /// Privacy Pass client for generating and finalizing tokens
 ///
-/// This class provides a high-level Dart API over the FFI bindings.
-/// All memory management is handled automatically.
+/// This class provides a high-level Dart API over the generated FFI bindings.
+/// All memory management is handled automatically. The native library is
+/// resolved via its code asset id — no manual `DynamicLibrary` loading.
 ///
 /// Example:
 /// ```dart
@@ -33,8 +34,6 @@ import 'types.dart';
 /// );
 /// ```
 class PrivacyPassClient {
-  final PrivacyPassBindings _bindings = PrivacyPassBindings();
-
   /// Generate a Privacy Pass token request
   ///
   /// Parameters:
@@ -56,7 +55,7 @@ class PrivacyPassClient {
 
     try {
       // Call Rust function
-      final resultPtr = _bindings.privacyPassTokenRequest(headerPtr.cast(), tokenCount);
+      final resultPtr = bindings.privacy_pass_token_request(headerPtr.cast(), tokenCount);
 
       if (resultPtr.address == 0) {
         throw PrivacyPassException('Native function returned null');
@@ -94,7 +93,7 @@ class PrivacyPassClient {
         );
       } finally {
         // Always free the Rust-allocated string
-        _bindings.privacyPassFreeString(resultPtr);
+        bindings.privacy_pass_free_string(resultPtr);
       }
     } finally {
       // Free Dart-allocated UTF-8 string
@@ -131,7 +130,11 @@ class PrivacyPassClient {
 
     try {
       // Call Rust function
-      final resultPtr = _bindings.privacyPassTokenFinalization(headerPtr.cast(), statePtr.cast(), responsePtr.cast());
+      final resultPtr = bindings.privacy_pass_token_finalization(
+        headerPtr.cast(),
+        statePtr.cast(),
+        responsePtr.cast(),
+      );
 
       if (resultPtr.address == 0) {
         throw PrivacyPassException('Native function returned null');
@@ -159,13 +162,26 @@ class PrivacyPassClient {
         return tokens.cast<String>();
       } finally {
         // Always free the Rust-allocated string
-        _bindings.privacyPassFreeString(resultPtr);
+        bindings.privacy_pass_free_string(resultPtr);
       }
     } finally {
       // Free all Dart-allocated UTF-8 strings
       malloc.free(headerPtr);
       malloc.free(statePtr);
       malloc.free(responsePtr);
+    }
+  }
+
+  /// The version of the native Privacy Pass library (e.g. "0.1.0")
+  String get nativeLibraryVersion {
+    final ptr = bindings.privacy_pass_version();
+    if (ptr.address == 0) {
+      throw PrivacyPassException('Native function returned null');
+    }
+    try {
+      return ptr.cast<Utf8>().toDartString();
+    } finally {
+      bindings.privacy_pass_free_string(ptr);
     }
   }
 }
