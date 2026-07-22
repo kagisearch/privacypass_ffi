@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:privacypass_ffi/privacypass_ffi.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('PrivacyPassClient', () {
@@ -15,6 +15,11 @@ void main() {
         () => client.generateTokenRequest(wwwAuthenticateHeader: 'test', tokenCount: 0),
         throwsA(isA<PrivacyPassException>()),
       );
+    });
+
+    test('nativeLibraryVersion returns a version string', () {
+      final client = PrivacyPassClient();
+      expect(client.nativeLibraryVersion, matches(RegExp(r'^\d+\.\d+\.\d+')));
     });
 
     test('generateTokenRequest throws on invalid header', () {
