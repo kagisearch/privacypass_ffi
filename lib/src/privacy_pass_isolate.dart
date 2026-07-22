@@ -83,8 +83,8 @@ class PrivacyPassIsolate {
       return await Isolate.run(computation);
     } on PrivacyPassException {
       rethrow;
-    } catch (e) {
-      throw PrivacyPassException(e.toString());
+    } catch (e, stackTrace) {
+      Error.throwWithStackTrace(PrivacyPassException(e.toString()), stackTrace);
     }
   }
 }

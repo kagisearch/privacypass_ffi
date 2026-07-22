@@ -2,26 +2,15 @@ import Flutter
 import UIKit
 import XCTest
 
-
-@testable import privacypass_ffi
-
-// This demonstrates a simple unit test of the Swift portion of this plugin's implementation.
-//
-// See https://developer.apple.com/documentation/xctest for more information about using XCTest.
+// The privacypass_ffi package has no platform-channel Swift code to test:
+// the native library is bundled as a code asset and exercised from Dart
+// (see the package's test/ directory).
 
 class RunnerTests: XCTestCase {
 
-  func testGetPlatformVersion() {
-    let plugin = PrivacypassFfiPlugin()
-
-    let call = FlutterMethodCall(methodName: "getPlatformVersion", arguments: [])
-
-    let resultExpectation = expectation(description: "result block must be called.")
-    plugin.handle(call) { result in
-      XCTAssertEqual(result as! String, "iOS " + UIDevice.current.systemVersion)
-      resultExpectation.fulfill()
-    }
-    waitForExpectations(timeout: 1)
+  func testExample() {
+    // If you add code to the Runner application, consider adding tests here.
+    // See https://developer.apple.com/documentation/xctest for more information about using XCTest.
   }
 
 }
