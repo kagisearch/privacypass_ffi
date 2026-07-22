@@ -63,5 +63,6 @@ void main(List<String> args) async {
         file: library,
       ),
     );
+    output.dependencies.add(library);
   });
 }
